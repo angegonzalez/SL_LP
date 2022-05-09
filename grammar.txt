@@ -1,0 +1,75 @@
+Programa->programa id
+Programa->BloqueDeclaraciones inicio BloqueSentencias fin BloqueSubrutinas
+BloqueDeclaraciones->Declaraciones ListaDeclaraciones
+BloqueDeclaraciones->ε
+ListaDeclaraciones->Declaraciones ListaDeclaraciones
+ListaDeclaraciones->ε
+Declaraciones->const SentenciaAsignacion ListaConst
+ListaConst->SentenciaAsignacion ListaConst
+ListaConst->ε
+Declaraciones->tipos id MasTiposVar : TipoDato ListaVarTipo
+ListaVarTipo->id: TipoDato ListaVarTipo
+ListaVarTipo->ε
+MasTiposVar->, id MasTiposVar
+MasTiposVar->ε
+Declaraciones->var id, MasTiposVar : TipoDato ListaVarTipo
+TipoDato->TipoBasico
+TipoDato->TipoComplejo
+TipoBasico->numero
+TipoBasico->cadena
+TipoBasico->logico
+TipoBasico->id
+TipoComplejo->vector [ VectorTamanio ] TipoBasico
+TipoComplejo->matriz [ MatrizTamanio ] TipoBasico
+TipoComplejo->registro { ListaVarTipo }
+VectorTamanio->*
+VectorTamanio->num
+MatrizTamanio->* MatrizTamanioLista
+MatrizTamanio->num MatrizTamanioLista
+MatrizTamanioLista->, MatrizTamanio
+MatrizTamanioLista->ε
+ListaArgumentos->, Argumento ListaArgumentos
+ListaArgumentos->ε
+ListaSentencias->; BloqueSentencias
+ListaSentencias->BloqueSentencias
+ListaSentencias->ε
+BloqueSentencias->Sentencia ListaSentencias
+Sentencia->SentenciaAsignFunc
+SentenciaAsignFunc->id SentenciaId
+SentenciaId->= Expresion
+SentenciaId->( Argumento ListaArgumentos )
+Argumento->Expresion
+Argumento->ε
+Expresion->ExpresionTerminal ExpresionAux
+ExpresionAux->Operador ExpresionTerminal ExpresionAux
+ExpresionAux->ε
+ExpresionTerminal->Id
+ExpresionTerminal->num
+ExpresionTerminal->cadena_
+ExpresionTerminal->not
+ExpresionTerminal->TRUE
+ExpresionTerminal->FALSE
+ExpresionTerminal->SI
+ExpresionTerminal->NO
+Operador->+
+Operador->-
+Operador->*
+Operador->/
+Operador->%
+Operador->^
+Operador->and
+Operador->or
+Operador-><
+Operador->>
+Operador-><=
+Operador->>=
+Operador->==
+Operador-><>
+Id->id IdCompuesto
+IdCompuesto->IdValores
+IdCompuesto->. Id
+IdCompuesto->ε
+IdValores->[ Expresion ListaValoresMatriz ]
+ListaValoresMatriz->, Expresion ListaValoresMatriz
+ListaValoresMatriz->ε
+LlamadoFuncion->( Argumento ListaArgumentos )

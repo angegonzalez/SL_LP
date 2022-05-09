@@ -1,0 +1,123 @@
+Program->programa id
+Program->DeclarationsList inicio StatementList fin FunctionDeclarationList
+FunctionDeclarationList->FunctionDeclaration FunctionDeclarationList
+FunctionDeclarationList->ε
+FunctionDeclaration->subrutina id( Parameter ParameterList ) FunctionDeclarationAux
+FunctionDeclarationAux->Declarations inicio StatementList fin
+FunctionDeclarationAux->ReturnType
+ReturnType->TypeDenoter Declarations inicio StatementList fin
+ReturnType->( Expression )
+DeclarationsList->Declarations DeclarationsList
+DeclarationsList->ε
+Declarations->const id = Expression
+Declarations->tipos VarList
+Declarations->var id IdList : TypeDenoter VarList
+VarList->id IdList : TypeDenoter VarList
+VarList->ε
+IdList->, id IdList
+IdList->ε
+TypeDenoter->SimpleType
+TypeDenoter->id
+TypeDenoter->CompositeType
+TypeDenoter->ref
+CompositeType->registro { id IdList : TypeDenoter VarList }
+CompositeType->vector [ VectorSize ] TypeDenoter
+VectorSize->num TypeDenoter
+VectorSize->* TypeDenoter
+CompositeType->matriz [ MatrixSize ] TypeDenoter
+MatrixSize->num MatrixSizeAux
+MatrixSize->* MatrixSizeAux
+MatrixSizeAux->, MatrixSize
+MatrixSizeAux->ε
+SimpleType->cadena
+SimpleType->logico
+SimpleType->numerico
+ElseStm->sino ElseStmAux
+ElseStm->ε
+ElseStmAux->IfStm
+ElseStmAux->ε
+IfStmAux->{ StatementList ElseStm }
+IfStmAux->StatementList
+StatementListAux->; StatementListAux
+StatementListAux->StatementList
+StatementListAux->ε
+StatementList->Statement StatementListAux
+Statement->IfStm
+Statement->WhileStm
+Statement->RepeatTilStm
+Statement->EvalStm
+Statement->FromStm
+Statement->IdValue
+Statement->ReturnStm
+IfStm->si ( Expression ) IfStmAux
+RightValue->Expression
+RightValue->Obj
+WhileStm->mientras ( Expression ) { StatementList }
+RepeatTilStm->repetir StatementList hasta ( Expression )
+EvalStm->eval { caso ( Expression ) StatementList CaseStm ElseCaseStm }
+CaseStm->caso (Expression) StatementList CaseStm
+CaseStm->ε
+ElseCaseStm->sino StatementList
+ElseCaseStm->ε
+FromStm->desde IdValue hasta Expression TilStm { StatementList }
+TilStm->paso Sign num
+TilStm->ε
+ReturnStm->retorna ReturnType
+Arg->Expression
+Arg->ε
+ArgList->, Arg ArgList
+ArgList->ε
+Expression->not ( Expression )
+Expression->( Expression )
+Expression->ExpressionTerminal ExpressionAux
+ExpressionAux->+ Expression ExpressionAux
+ExpressionAux->- Expression ExpressionAux
+ExpressionAux->* Expression ExpressionAux
+ExpressionAux->/ Expression ExpressionAux
+ExpressionAux->% Expression ExpressionAux
+ExpressionAux->^ Expression ExpressionAux
+ExpressionAux->and Expression ExpressionAux
+ExpressionAux->or Expression ExpressionAux
+ExpressionAux->< Expression ExpressionAux
+ExpressionAux->> Expression ExpressionAux
+ExpressionAux->>= Expression ExpressionAux
+ExpressionAux-><= Expression ExpressionAux
+ExpressionAux->== Expression ExpressionAux
+ExpressionAux-><> Expression ExpressionAux
+ExpressionAux->ε
+ExpressionTerminal->TRUE
+ExpressionTerminal->FALSE
+ExpressionTerminal->SI
+ExpressionTerminal->NO
+ExpressionTerminal->Num
+ExpressionTerminal->cadena_
+ExpressionTerminal->IdValue
+IdValue->id IdValueAux AssignStm
+IdValueAux->( Arg ArgList )
+IdValueAux->LeftValue
+IdValueAux->ε
+AssignStm->= RightValue
+AssignStm->ε
+Obj->{ ObjAux
+ObjAux->cadena_ ObjList}
+ObjAux->Num ObjList }
+ObjAux->TRUE ObjList }
+ObjAux->FALSE ObjList }
+ObjAux->SI ObjList }
+ObjAux->NO ObjList }
+ObjList->, ObjListAux
+ObjList->ε
+ObjListAux->cadena_ ObjList
+ObjListAux->Num ObjList
+ObjListAux->TRUE ObjList
+ObjListAux->FALSE ObjList
+ObjListAux->SI ObjList
+ObjListAux->NO ObjList
+Num->num
+Sign->+
+Sign->-
+Sign->ε
+LeftValue->[ Expression MatrixList ]
+LeftValue->. id LeftValue
+MatrixList->, Expression MatrixList
+MatrixList->ε
