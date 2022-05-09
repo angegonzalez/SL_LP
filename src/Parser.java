@@ -31,7 +31,12 @@ public class Parser {
         }
     }
 
-    private boolean syntaxError(ArrayList<String> expectedTokens) {
+    private void syntaxError(ArrayList<String> expectedTokens) {
+        if(expectedTokens.size() == 1 ){
+            if(expectedTokens.get(0).equals(token.lexema)){
+                return;
+            }
+        }
         StringBuilder errorMessage = new StringBuilder(String.format("<%s,%s> Error sintactico: se encontro: %s; se esperaba:", token.linea, token.posicion, token.lexema));
         int i = 0;
         for (String token : expectedTokens) {
@@ -43,10 +48,8 @@ public class Parser {
             i++;
         }
         System.out.println(errorMessage);
-        return true;
 //        throw new RuntimeException("Help!  Somebody debug me!  I'm crashing!");
     }
-
     public void Programa() {
         if ( token.lexema.equals("const") || token.lexema.equals("var") || token.lexema.equals("inicio") || token.lexema.equals("tipos") ) {
             BloqueDeclaraciones();
@@ -96,7 +99,7 @@ public class Parser {
     private void Declaraciones() {
         if ( token.lexema.equals("const") ) {
             doMatch("const");
-            SentenciaAsignacion();
+            SentenciaAsignFunc();
             ListaConst();
         }
         else if ( token.lexema.equals("tipos") ) {
@@ -123,7 +126,7 @@ public class Parser {
 
     private void ListaConst() {
         if ( token.tipo.equals(Lexer.TOKEN_TYPES.ID) ) {
-            SentenciaAsignacion();
+            SentenciaAsignFunc();
             ListaConst();
         }
         else if ( token.lexema.equals("const") || token.lexema.equals("var") || token.lexema.equals("inicio") || token.lexema.equals("tipos") ) {
@@ -311,7 +314,7 @@ public class Parser {
 
     private void Sentencia() {
         if ( token.tipo.equals(Lexer.TOKEN_TYPES.ID) ) {
-            SentenciaAsignacion();
+            SentenciaAsignFunc();
         }
         else {
             ArrayList<String> expectedTokens = new ArrayList<>( List.of( "id"));
@@ -319,38 +322,54 @@ public class Parser {
         }
     }
 
-    private void SentenciaAsignacion() {
+    private void SentenciaAsignFunc() {
         if ( token.tipo.equals(Lexer.TOKEN_TYPES.ID) ) {
-            Id();
+            doMatch("id");
+            SentenciaId();
+        }
+        else {
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "id"));
+            syntaxError(expectedTokens);
+        }
+    }
+
+    private void SentenciaId() {
+        if ( token.lexema.equals("(") ) {
+            doMatch("(");
+            Argumento();
+            ListaArgumentos();
+            doMatch(")");
+        }
+        else if ( token.lexema.equals("=") ) {
             doMatch("=");
             Expresion();
         }
         else {
-            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "id"));
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "(", "="));
             syntaxError(expectedTokens);
         }
     }
 
     private void Argumento() {
-        if ( token.lexema.equals("NO") || token.lexema.equals("not") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_CADENA) || token.lexema.equals("SI") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) || token.lexema.equals("TRUE") || token.lexema.equals("FALSE") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) ) {
+        if ( token.lexema.equals("NO") || token.lexema.equals("not") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_CADENA) || token.lexema.equals("SI") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) || token.lexema.equals("TRUE") || token.lexema.equals("FALSE") || token.lexema.equals("+") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals("-") ) {
             Expresion();
         }
         else if ( token.lexema.equals(")") || token.lexema.equals(",") ) {
             // doMatch("?");
         }
         else {
-            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "NO", "not", "cadena_", "SI", "num", "TRUE", "FALSE", "id", ")", ","));
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "NO", "not", "cadena_", "SI", "num", "TRUE", "FALSE", "+", "id", "-", ")", ","));
             syntaxError(expectedTokens);
         }
     }
 
     private void Expresion() {
-        if ( token.lexema.equals("NO") || token.lexema.equals("not") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_CADENA) || token.lexema.equals("SI") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) || token.lexema.equals("TRUE") || token.lexema.equals("FALSE") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) ) {
-            ExpresionTerminal();
+        if ( token.lexema.equals("NO") || token.lexema.equals("not") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_CADENA) || token.lexema.equals("SI") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) || token.lexema.equals("TRUE") || token.lexema.equals("FALSE") || token.lexema.equals("+") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals("-") ) {
+            Termino();
             ExpresionAux();
         }
         else {
-            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "NO", "not", "cadena_", "SI", "num", "TRUE", "FALSE", "id"));
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "NO", "not", "cadena_", "SI", "num", "TRUE", "FALSE", "+", "id", "-"));
             syntaxError(expectedTokens);
         }
     }
@@ -358,14 +377,40 @@ public class Parser {
     private void ExpresionAux() {
         if ( token.lexema.equals("==") || token.lexema.equals("<=") || token.lexema.equals("<>") || token.lexema.equals("or") || token.lexema.equals("%") || token.lexema.equals("*") || token.lexema.equals("+") || token.lexema.equals("-") || token.lexema.equals("/") || token.lexema.equals("and") || token.lexema.equals("<") || token.lexema.equals(">") || token.lexema.equals("^") || token.lexema.equals(">=") ) {
             Operador();
-            ExpresionTerminal();
+            Termino();
             ExpresionAux();
         }
-        else if (  token.lexema.equals("]") || token.lexema.equals(")") || token.lexema.equals("const") || token.lexema.equals("var") || token.lexema.equals("inicio") || token.lexema.equals("fin") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals("tipos") || token.lexema.equals(";") || token.lexema.equals(",") ) {
+        else if (  token.lexema.equals("const") || token.lexema.equals("var") || token.lexema.equals("inicio") || token.lexema.equals(")") || token.lexema.equals("fin") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals("tipos") || token.lexema.equals(";") || token.lexema.equals(",") || token.lexema.equals("]") ) {
             // doMatch("?");
         }
         else {
-            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "==", "<=", "<>", "or", "%", "*", "+", "-", "/", "and", "<", ">", "^", ">=", "const", "var", "inicio", "fin", "id", "tipos", ";", ","));
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "==", "<=", "<>", "or", "%", "*", "+", "-", "/", "and", "<", ">", "^", ">=", "const", "var", "inicio", ")", "fin", "id", "tipos", ";", ",", "]"));
+            syntaxError(expectedTokens);
+        }
+    }
+
+    private void Termino() {
+        if ( token.lexema.equals("NO") || token.lexema.equals("not") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_CADENA) || token.lexema.equals("SI") || token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) || token.lexema.equals("TRUE") || token.lexema.equals("FALSE") || token.lexema.equals("+") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals("-") ) {
+            ExpresionTerminal();
+            TerminoAux();
+        }
+        else {
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "NO", "not", "cadena_", "SI", "num", "TRUE", "FALSE", "+", "id", "-"));
+            syntaxError(expectedTokens);
+        }
+    }
+
+    private void TerminoAux() {
+        if ( token.lexema.equals("==") || token.lexema.equals("<=") || token.lexema.equals("<>") || token.lexema.equals("or") || token.lexema.equals("%") || token.lexema.equals("*") || token.lexema.equals("+") || token.lexema.equals("-") || token.lexema.equals("/") || token.lexema.equals("and") || token.lexema.equals("<") || token.lexema.equals(">") || token.lexema.equals("^") || token.lexema.equals(">=") ) {
+            Operador();
+            ExpresionTerminal();
+            TerminoAux();
+        }
+        else if (  token.lexema.equals("==") || token.lexema.equals("<=") || token.lexema.equals("<>") || token.lexema.equals("or") || token.lexema.equals("const") || token.lexema.equals("%") || token.lexema.equals("var") || token.lexema.equals("inicio") || token.lexema.equals(")") || token.lexema.equals("*") || token.lexema.equals("fin") || token.lexema.equals("+") || token.lexema.equals("tipos") || token.lexema.equals(",") || token.lexema.equals("-") || token.lexema.equals("/") || token.lexema.equals("and") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals(";") || token.lexema.equals("<") || token.lexema.equals("]") || token.lexema.equals(">") || token.lexema.equals("^") || token.lexema.equals(">=") ) {
+            // doMatch("?");
+        }
+        else {
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "==", "<=", "<>", "or", "%", "*", "+", "-", "/", "and", "<", ">", "^", ">=", "==", "<=", "<>", "or", "const", "%", "var", "inicio", ")", "*", "fin", "+", "tipos", ",", "-", "/", "and", "id", ";", "<", "]", ">", "^", ">="));
             syntaxError(expectedTokens);
         }
     }
@@ -380,6 +425,10 @@ public class Parser {
         else if ( token.lexema.equals("SI") ) {
             doMatch("SI");
         }
+        else if ( token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) || token.lexema.equals("+") || token.lexema.equals("-") ) {
+            Signo();
+            doMatch("num");
+        }
         else if ( token.lexema.equals("TRUE") ) {
             doMatch("TRUE");
         }
@@ -389,14 +438,28 @@ public class Parser {
         else if ( token.lexema.equals("not") ) {
             doMatch("not");
         }
-        else if ( token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) ) {
-            doMatch("num");
-        }
-        else if (  token.tipo.equals(Lexer.TOKEN_TYPES.ID) ) {
+        else if (  token.lexema.equals("+") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals("-") ) {
+            Signo();
             Id();
         }
         else {
-            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "FALSE", "id", "NO", "SI", "TRUE", "cadena_", "not", "num"));
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "FALSE", "NO", "SI", "+", "id", "-", "num", "+", "-", "TRUE", "cadena_", "not"));
+            syntaxError(expectedTokens);
+        }
+    }
+
+    private void Signo() {
+        if ( token.lexema.equals("+") ) {
+            doMatch("+");
+        }
+        else if ( token.lexema.equals("-") ) {
+            doMatch("-");
+        }
+        else if (  token.tipo.equals(Lexer.TOKEN_TYPES.TK_NUMERO) || token.tipo.equals(Lexer.TOKEN_TYPES.ID) ) {
+            // doMatch("?");
+        }
+        else {
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( "+", "-", "num", "id"));
             syntaxError(expectedTokens);
         }
     }
@@ -469,14 +532,11 @@ public class Parser {
         else if ( token.lexema.equals("[") ) {
             IdValores();
         }
-        else if ( token.lexema.equals("(") ) {
-            LlamadoFuncion();
-        }
-        else if (  token.lexema.equals("==") || token.lexema.equals("<=") || token.lexema.equals("<>") || token.lexema.equals("or") || token.lexema.equals("const") || token.lexema.equals("%") || token.lexema.equals("var") || token.lexema.equals("inicio") || token.lexema.equals("*") || token.lexema.equals("fin") || token.lexema.equals("+") || token.lexema.equals("tipos") || token.lexema.equals(",") || token.lexema.equals("-") || token.lexema.equals("/") || token.lexema.equals("and") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals(";") || token.lexema.equals("<") || token.lexema.equals("=") || token.lexema.equals(">") || token.lexema.equals("^") || token.lexema.equals(">=") ) {
+        else if (  token.lexema.equals("==") || token.lexema.equals("<=") || token.lexema.equals("<>") || token.lexema.equals("or") || token.lexema.equals("const") || token.lexema.equals("%") || token.lexema.equals("var") || token.lexema.equals("inicio") || token.lexema.equals(")") || token.lexema.equals("*") || token.lexema.equals("fin") || token.lexema.equals("+") || token.lexema.equals("tipos") || token.lexema.equals(",") || token.lexema.equals("-") || token.lexema.equals("/") || token.lexema.equals("and") || token.tipo.equals(Lexer.TOKEN_TYPES.ID) || token.lexema.equals(";") || token.lexema.equals("<") || token.lexema.equals("]") || token.lexema.equals(">") || token.lexema.equals("^") || token.lexema.equals(">=") ) {
             // doMatch("?");
         }
         else {
-            ArrayList<String> expectedTokens = new ArrayList<>( List.of( ".", "[", "(", "==", "<=", "<>", "or", "const", "%", "var", "inicio", "*", "fin", "+", "tipos", ",", "-", "/", "and", "id", ";", "<", "=", ">", "^", ">="));
+            ArrayList<String> expectedTokens = new ArrayList<>( List.of( ".", "[", "==", "<=", "<>", "or", "const", "%", "var", "inicio", ")", "*", "fin", "+", "tipos", ",", "-", "/", "and", "id", ";", "<", "]", ">", "^", ">="));
             syntaxError(expectedTokens);
         }
     }
@@ -521,6 +581,5 @@ public class Parser {
             syntaxError(expectedTokens);
         }
     }
-
 
 }

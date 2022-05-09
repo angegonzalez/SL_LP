@@ -11,7 +11,6 @@ public class ParserHelper {
         this.readRules();
         this.getNonTerminals();
         this.calculateFirstSetNoTerminals();
-        this.calculateFollowSet();
         this.calculatePredictionSet();
         this.calculateLexerProgram();
     }
@@ -59,7 +58,9 @@ public class ParserHelper {
             return false;
         }
         HashSet<String> previousSet = myHash.get(key);
-        HashSet<String> concatSet = myHash.get(key);
+        HashSet<String> concatSet = new HashSet<>() {{
+            addAll(myHash.get(key));
+        }};
         concatSet.addAll(addSet);
         myHash.put(key, concatSet);
         return myHash.get(key).size() > previousSet.size();
@@ -85,7 +86,7 @@ public class ParserHelper {
             String[] rightPart = alpha.split(" ");
             for (String subpart : rightPart
             ) {
-               //  System.out.println(subpart);
+                // System.out.println(subpart);
                 if (isTerminal(subpart.charAt(0) + "") || subpart.equals("NO") || subpart.equals("SI") || subpart.equals("TRUE") || subpart.equals("FALSE")) {
                     if (!firstsNoTerminals.containsKey(noTerminal)) {
                         firstsNoTerminals.put(noTerminal, new HashSet<>() {{
@@ -228,14 +229,12 @@ public class ParserHelper {
 
             }
         }
-
-//        System.out.println("Siguientes de cada no terminal:");
-//        followRules.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
-
+        System.out.println("Siguientes de cada no terminal:");
+        followRules.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
     }
 
     public void calculatePredictionSet() throws FileNotFoundException {
-        // calculateFollowSet();
+        calculateFollowSet();
 
         ArrayList<String> productions = new ArrayList<>();
         // Map<String, HashSet<String>> productionsPredictionSet = new HashMap<>();
@@ -268,9 +267,9 @@ public class ParserHelper {
             nonTerminalsPredictionSet.put(nonTerminal, nonTerminalSymbols);
         }
 
-//        System.out.println("\nConjunto de prediccion: ");
-//         predictionSet.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
-//
+        System.out.println("\nConjunto de prediccion: ");
+         predictionSet.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
+
     }
 
 

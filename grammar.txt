@@ -4,8 +4,8 @@ BloqueDeclaraciones->Declaraciones ListaDeclaraciones
 BloqueDeclaraciones->ε
 ListaDeclaraciones->Declaraciones ListaDeclaraciones
 ListaDeclaraciones->ε
-Declaraciones->const SentenciaAsignacion ListaConst
-ListaConst->SentenciaAsignacion ListaConst
+Declaraciones->const SentenciaAsignFunc ListaConst
+ListaConst->SentenciaAsignFunc ListaConst
 ListaConst->ε
 Declaraciones->tipos id MasTiposVar : TipoDato ListaVarTipo
 ListaVarTipo->id: TipoDato ListaVarTipo
@@ -40,11 +40,17 @@ SentenciaId->= Expresion
 SentenciaId->( Argumento ListaArgumentos )
 Argumento->Expresion
 Argumento->ε
-Expresion->ExpresionTerminal ExpresionAux
-ExpresionAux->Operador ExpresionTerminal ExpresionAux
+Expresion->Termino ExpresionAux
+ExpresionAux->Operador Termino ExpresionAux
 ExpresionAux->ε
-ExpresionTerminal->Id
-ExpresionTerminal->num
+Termino->ExpresionTerminal TerminoAux
+TerminoAux->Operador ExpresionTerminal TerminoAux
+TerminoAux->ε
+ExpresionTerminal->Signo Id
+ExpresionTerminal->Signo num
+Signo->ε
+Signo->+
+Signo->-
 ExpresionTerminal->cadena_
 ExpresionTerminal->not
 ExpresionTerminal->TRUE
