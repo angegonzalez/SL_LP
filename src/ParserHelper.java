@@ -229,8 +229,8 @@ public class ParserHelper {
 
             }
         }
-        System.out.println("Siguientes de cada no terminal:");
-        followRules.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
+//        System.out.println("Siguientes de cada no terminal:");
+//        followRules.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
     }
 
     public void calculatePredictionSet() throws FileNotFoundException {
@@ -266,9 +266,9 @@ public class ParserHelper {
             });
             nonTerminalsPredictionSet.put(nonTerminal, nonTerminalSymbols);
         }
-
-        System.out.println("\nConjunto de prediccion: ");
-         predictionSet.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
+//
+//        System.out.println("\nConjunto de prediccion: ");
+//         predictionSet.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
 
     }
 

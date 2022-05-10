@@ -15,8 +15,7 @@ public class Main {
 //            System.out.println(token.lexema);
 //            token = lexer.getToken();
 //        }
-
-        // new ParserHelper();
+       //  new ParserHelper();
         Lexer.Token token;
         Lexer lexer = new Lexer();
         token = lexer.getToken();
