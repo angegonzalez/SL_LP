@@ -1,68 +1,82 @@
-Programa->programa id
-Programa->BloqueDeclaraciones inicio BloqueSentencias fin BloqueSubrutinas
-BloqueDeclaraciones->Declaraciones ListaDeclaraciones
-BloqueDeclaraciones->ε
+Programa->ProgramaFirma BloqueDeclaraciones inicio BloqueSentencias ListaSentencias fin SubrutinasLista
+ProgramaFirma->programa id
+ProgramaFirma->ε
 ListaDeclaraciones->Declaraciones ListaDeclaraciones
 ListaDeclaraciones->ε
-Declaraciones->const SentenciaAsignFunc ListaConst
-ListaConst->SentenciaAsignFunc ListaConst
+BloqueDeclaraciones->Declaraciones ListaDeclaraciones
+BloqueDeclaraciones->ε
+Declaraciones->const AsignacionConst FinSentencia ListaConst
+ListaConst->AsignacionConst FinSentencia ListaConst
 ListaConst->ε
-Declaraciones->tipos id MasTiposVar : TipoDato ListaVarTipo
-ListaVarTipo->id : TipoDato ListaVarTipo
+Declaraciones->tipos id MasTiposVar : TipoDato FinSentencia ListaVarTipo
+ListaVarTipo->id MasTiposVar : TipoDato FinSentencia ListaVarTipo
 ListaVarTipo->ε
-MasTiposVar->, id MasTiposVar
-MasTiposVar->ε
-Declaraciones->var id MasTiposVar : TipoDato ListaVarTipo
+Declaraciones->var id MasTiposVar : TipoDato FinSentencia ListaVarTipo
 TipoDato->TipoBasico
 TipoDato->TipoComplejo
-TipoBasico->numero
+TipoBasico->numerico
 TipoBasico->cadena
 TipoBasico->logico
 TipoBasico->id
 TipoComplejo->vector [ VectorTamanio ] TipoBasico
 TipoComplejo->matriz [ MatrizTamanio ] TipoBasico
 TipoComplejo->registro { ListaVarTipo }
-VectorTamanio->Expresion
-MatrizTamanio->Expresion MatrizTamanioLista
+VectorTamanio->VectorValor
+MatrizTamanio->VectorValor MatrizTamanioLista
 MatrizTamanioLista->, MatrizTamanio
 MatrizTamanioLista->ε
+VectorValor->*
+VectorValor->Expresion
 ListaArgumentos->, Argumento ListaArgumentos
 ListaArgumentos->ε
-ListaSentencias->BloqueSentencias
+CuerpoSi->ListaSentencias SinoSentenciaLista
+SinoSiSentencia->ListaSentencias
+ListaSentencias->BloqueSentencias ListaSentencias
 ListaSentencias->ε
+BloqueSentencias->Sentencia FinSentencia
 FinSentencia->ε
 FinSentencia->;
-BloqueSentencias->Sentencia FinSentencia ListaSentencias
 Sentencia->SentenciaAsignFunc
 Sentencia->SentenciaMientras
 Sentencia->SentenciaRepetirHasta
 Sentencia->SentenciaEval
 Sentencia->SentenciaDesde
 Sentencia->SentenciaRetorna
-SentenciaMientras->mientras ( Expresion ) { BloqueSentencias }
-SentenciaRepetirHasta->repetir BloqueSentencias hasta ( Expresion )
+Sentencia->SentenciaSi
+SentenciaSi->si ( Expresion ) { CuerpoSi }
+SinoSentenciaLista->ε
+SinoSentenciaLista->SinoSentencia SinoSentenciaLista
+SinoSentencia->sino SinoSiSentencia
+SinoSiSentencia->si ( Expresion ) ListaSentencias
+SentenciaMientras->mientras ( Expresion ) { ListaSentencias }
+SentenciaRepetirHasta->repetir ListaSentencias hasta ( Expresion )
 SentenciaEval->eval { EvalCuerpo ListaCasosEval SinoEval }
 ListaCasosEval->EvalCuerpo ListaCasosEval
 ListaCasosEval->ε
-EvalCuerpo->caso ( Expresion ) BloqueSentencias
-SinoEval->sino BloqueSentencias
+EvalCuerpo->caso ( Expresion ) ListaSentencias
+SinoEval->sino ListaSentencias
 SinoEval->ε
-SentenciaDesde->desde SentenciaAsignFunc hasta Expresion { BloqueSentencias }
+SentenciaDesde->desde SentenciaAsignFunc hasta Expresion OpcionalPaso { ListaSentencias }
+OpcionalPaso->paso Expresion
+OpcionalPaso->ε
 SentenciaRetorna->retorna ( Expresion )
-SentenciaAsignFunc->id SentenciaId
+AsignacionConst->Id = Expresion
+SentenciaAsignFunc->Id SentenciaId
 SentenciaId->= Expresion
 SentenciaId->( Argumento ListaArgumentos )
 Argumento->Expresion
 Argumento->ε
+Elemento->Expresion
 Expresion->ExpresionTerminal ExpresionOperador
-Expresion->( ExpresionTerminal ) ExpresionOperador
-ExpresionOperador->Operador ExpresionOperadorAux
-ExpresionOperadorAux->ExpresionTerminal ExpresionOperador
-ExpresionOperadorAux->( ExpresionTerminal ) ExpresionOperador
+ExpresionOperador->Operador ExpresionFin
+ExpresionFin->ExpresionTerminal ExpresionOperador
 ExpresionOperador->ε
+ExpresionTerminal->( Expresion )
 ExpresionTerminal->Signo NumIdTerminal
 NumIdTerminal->num
-NumIdTerminal->Id
+NumIdTerminal->Id FuncionId
+FuncionId->ε
+FuncionId->( Argumento ListaArgumentos )
 Signo->ε
 Signo->+
 Signo->-
@@ -72,6 +86,7 @@ ExpresionTerminal->TRUE
 ExpresionTerminal->FALSE
 ExpresionTerminal->SI
 ExpresionTerminal->NO
+ExpresionTerminal->Objeto
 Operador->+
 Operador->-
 Operador->*
@@ -86,11 +101,27 @@ Operador-><=
 Operador->>=
 Operador->==
 Operador-><>
+Objeto->{ Elemento ListaObjetos }
+Elemento->ε
+ListaObjetos->, Expresion ListaObjetos
+ListaObjetos->ε
 Id->id IdCompuesto
 IdCompuesto->IdValores
 IdCompuesto->. Id
 IdCompuesto->ε
-IdCompuesto->( Argumento ListaArgumentos )
 IdValores->[ Expresion ListaValoresMatriz ]
 ListaValoresMatriz->, Expresion ListaValoresMatriz
 ListaValoresMatriz->ε
+SubrutinasLista->BloqueSubrutinas SubrutinasLista
+SubrutinasLista->ε
+ArgumentosSubrutina->RefIndicador id MasTiposVar : TipoDato MasArgumentosSubrutina
+ArgumentosSubrutina->ε
+MasArgumentosSubrutina->; RefIndicador id MasTiposVar : TipoDato MasArgumentosSubrutina
+MasArgumentosSubrutina->ε
+RefIndicador->ref
+RefIndicador->ε
+RetornoOpcional->retorna TipoDato
+RetornoOpcional->ε
+BloqueSubrutinas->subrutina id ( ArgumentosSubrutina ) RetornoOpcional BloqueDeclaraciones inicio BloqueSentencias ListaSentencias fin
+MasTiposVar->, id MasTiposVar
+MasTiposVar->ε

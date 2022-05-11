@@ -1,27 +1,29 @@
+import Parser.Parser;
+
 import java.io.*;
 import java.util.Arrays;
 
 public class Main {
 
     public static void main(String[] args) throws FileNotFoundException {
-//        Lexer.Token token;
-//        Lexer lexer = new Lexer();
+//        Lexer.Lexer.Token token;
+//        Lexer.Lexer lexer = new Lexer.Lexer();
 //        token = lexer.getToken();
-//        while (token.tipo != Lexer.TOKEN_TYPES.EOF) {
-//            if (token.tipo == Lexer.TOKEN_TYPES.TK_ERROR) {
+//        while (token.tipo != Lexer.Lexer.TOKEN_TYPES.EOF) {
+//            if (token.tipo == Lexer.Lexer.TOKEN_TYPES.TK_ERROR) {
 //                System.out.println(">>> Error lexico(linea:" + token.linea + ",posicion:" + token.posicion + ")");
 //                break;
 //            }
 //            System.out.println(token.lexema);
 //            token = lexer.getToken();
 //        }
-       //  new ParserHelper();
-        Lexer.Token token;
-        Lexer lexer = new Lexer();
+          // new ParserHelper();
+        Lexer.Lexer.Token token;
+        Lexer.Lexer lexer = new Lexer.Lexer();
         token = lexer.getToken();
         Parser parser = new Parser(lexer, token);
         parser.Programa();
-//        if (token.tipo.equals(Lexer.TOKEN_TYPES.TK_ERROR)) {
+//        if (token.tipo.equals(Lexer.Lexer.TOKEN_TYPES.TK_ERROR)) {
 //            System.out.println("hola");
 //        }
         // System.out.println("El analisis sintactico ha finalizado exitosamente.");

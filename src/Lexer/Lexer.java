@@ -1,3 +1,5 @@
+package Lexer;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -34,7 +36,7 @@ public class Lexer {
 
     public class Token {
         public TOKEN_TYPES tipo;
-        String lexema = "";
+        public String lexema = "";
         public int linea;
         public int posicion;
 
@@ -191,13 +193,13 @@ public class Lexer {
                     break;
                 }
                 case IN_IDENTIFICADOR: {
-                    if (idCounter > 32) {
-                        token.tipo = TOKEN_TYPES.TK_ERROR;
-                        token.linea = nline;
-                        token.posicion = ncol;
-                        state = STATES.IN_HECHO;
-                        break;
-                    }
+//                    if (idCounter > 32) {
+//                        token.tipo = TOKEN_TYPES.TK_ERROR;
+//                        token.linea = nline;
+//                        token.posicion = ncol;
+//                        state = STATES.IN_HECHO;
+//                        break;
+//                    }
                     c = getChar();
                     Pattern pattern = Pattern.compile("[À-ÐÒ-ðò-ÿ]");
                     Matcher matcher = pattern.matcher(Character.toString(c));

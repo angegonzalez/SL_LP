@@ -1,6 +1,6 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.*;
@@ -267,19 +267,28 @@ public class ParserHelper {
             nonTerminalsPredictionSet.put(nonTerminal, nonTerminalSymbols);
         }
 //
-//        System.out.println("\nConjunto de prediccion: ");
-//         predictionSet.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
+        System.out.println("\nConjunto de prediccion: ");
+         predictionSet.forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
 
     }
 
 
     public void calculateLexerProgram() {
-        for (String nonTerminal : nonTerminals) {
-            generateParserFunction(nonTerminal);
+        try {
+            File file = new File("./src/Parser/Parser.java");
+            FileWriter fileWritter = new FileWriter(file, true);
+            BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+            for (String nonTerminal : nonTerminals) {
+                bufferWritter.write(generateParserFunction(nonTerminal));
+            }
+            bufferWritter.close();
+            fileWritter.close();
+        } catch (IOException e) {
+            System.out.println("No se pudo abrir el archivo Parser.java ");
         }
     }
 
-    public void generateParserFunction(String nonTerminal) {
+    public String generateParserFunction(String nonTerminal) {
         AtomicReference<String> functionBody = new AtomicReference<>("");
         AtomicInteger count = new AtomicInteger();
         String functionSignature;
@@ -290,24 +299,29 @@ public class ParserHelper {
         }
         AtomicReference<String> idCondition = new AtomicReference<>("");
         functionBody.set(functionBody + functionSignature);
+        AtomicReference<String[]> idLeftPart = new AtomicReference<>();
+        AtomicReference<HashSet<String>> idValue = new AtomicReference<>();
+        AtomicBoolean idFound = new AtomicBoolean(false);
+
         predictionSet.forEach((key, value) -> {
             String[] ruleParts = key.split("->");
             String rightPart = ruleParts[0];
             String[] leftPart = ruleParts[1].split(" ");
+
+
             if (nonTerminal.equals(rightPart)) {
-                if (count.get() == 0) {
-                    functionBody.set(functionBody + "\tif ( ");
-                    generateCondition(functionBody, value);
-                    functionBody.set(functionBody + " {");
-                    generateConditionBody(leftPart, functionBody);
-                    functionBody.set(functionBody + "\n\t}");
+                if (value.contains("id")) {
+                    idFound.set(true);
+                    idLeftPart.set(leftPart);
+                    idValue.set(value);
+
                 } else {
-                    if (value.contains("id")) {
-                        idCondition.set(idCondition + "\n\telse if ( " + " ");
-                        generateCondition(idCondition, value);
-                        idCondition.set(idCondition + " {");
-                        generateConditionBody(leftPart, idCondition);
-                        idCondition.set(idCondition + "\n\t}");
+                    if (count.get() == 0 || (count.get() == 1 && idFound.get())) {
+                        functionBody.set(functionBody + "\tif ( ");
+                        generateCondition(functionBody, value);
+                        functionBody.set(functionBody + " {");
+                        generateConditionBody(leftPart, functionBody);
+                        functionBody.set(functionBody + "\n\t}");
                     } else {
                         functionBody.set(functionBody + "\n\telse if ( ");
                         generateCondition(functionBody, value);
@@ -315,17 +329,60 @@ public class ParserHelper {
                         generateConditionBody(leftPart, functionBody);
                         functionBody.set(functionBody + "\n\t}");
                     }
-
                 }
+
                 count.getAndIncrement();
+
+
             }
+
+//
+//            if (nonTerminal.equals(rightPart)) {
+//                if (count.get() == 0) {
+//                    functionBody.set(functionBody + "\tif ( ");
+//                    generateCondition(functionBody, value);
+//                    functionBody.set(functionBody + " {");
+//                    generateConditionBody(leftPart, functionBody);
+//                    functionBody.set(functionBody + "\n\t}");
+//                } else {
+//                    if (value.contains("id")) {
+//                        idCondition.set(idCondition + "\n\telse if ( " + " ");
+//                        generateCondition(idCondition, value);
+//                        idCondition.set(idCondition + " {");
+//                        generateConditionBody(leftPart, idCondition);
+//                        idCondition.set(idCondition + "\n\t}");
+//                    } else {
+//                        functionBody.set(functionBody + "\n\telse if ( ");
+//                        generateCondition(functionBody, value);
+//                        functionBody.set(functionBody + " {");
+//                        generateConditionBody(leftPart, functionBody);
+//                        functionBody.set(functionBody + "\n\t}");
+//                    }
+//
+//                }
+//                count.getAndIncrement();
+//            }
         });
+        if (count.get() == 1 && idFound.get()) {
+            idCondition.set(idCondition + "\n\tif ( " + " ");
+            generateCondition(idCondition, idValue.get());
+            idCondition.set(idCondition + " {");
+            generateConditionBody(idLeftPart.get(), idCondition);
+            idCondition.set(idCondition + "\n\t}");
+        } else if (count.get() > 1 && idFound.get()) {
+            idCondition.set(idCondition + "\n\telse if ( " + " ");
+            generateCondition(idCondition, idValue.get());
+            idCondition.set(idCondition + " {");
+            generateConditionBody(idLeftPart.get(), idCondition);
+            idCondition.set(idCondition + "\n\t}");
+        }
+
         if (!Objects.equals(idCondition.get(), "")) {
             functionBody.set(functionBody + idCondition.get());
         }
         generateErrorCondition(functionBody, nonTerminal);
         functionBody.set(functionBody + "\n}");
-        System.out.println(functionBody.get());
+        return (functionBody.get());
     }
 
     private void generateCondition(AtomicReference<String> functionBody, HashSet<String> value) {
