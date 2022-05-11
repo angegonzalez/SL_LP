@@ -17,12 +17,18 @@ public class Main {
 //            System.out.println(token.lexema);
 //            token = lexer.getToken();
 //        }
-          // new ParserHelper();
+        // new ParserHelper();
         Lexer.Lexer.Token token;
         Lexer.Lexer lexer = new Lexer.Lexer();
         token = lexer.getToken();
         Parser parser = new Parser(lexer, token);
-        parser.Programa();
+        try {
+            parser.Programa();
+            System.out.println("El analisis sintactico ha finalizado exitosamente.");
+        } catch (RuntimeException ignored) {
+        }
+
+
 //        if (token.tipo.equals(Lexer.Lexer.TOKEN_TYPES.TK_ERROR)) {
 //            System.out.println("hola");
 //        }

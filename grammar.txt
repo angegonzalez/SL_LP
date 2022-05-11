@@ -67,9 +67,9 @@ SentenciaId->( Argumento ListaArgumentos )
 Argumento->Expresion
 Argumento->ε
 Elemento->Expresion
-Expresion->ExpresionTerminal ExpresionOperador
+Expresion->NegacionOpcional ExpresionTerminal ExpresionOperador
 ExpresionOperador->Operador ExpresionFin
-ExpresionFin->ExpresionTerminal ExpresionOperador
+ExpresionFin->NegacionOpcional ExpresionTerminal ExpresionOperador
 ExpresionOperador->ε
 ExpresionTerminal->( Expresion )
 ExpresionTerminal->Signo NumIdTerminal
@@ -81,7 +81,8 @@ Signo->ε
 Signo->+
 Signo->-
 ExpresionTerminal->cadena_
-ExpresionTerminal->not
+NegacionOpcional->not
+NegacionOpcional->ε
 ExpresionTerminal->TRUE
 ExpresionTerminal->FALSE
 ExpresionTerminal->SI
